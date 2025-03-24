@@ -24,6 +24,10 @@ button {
   float: left;
   margin: 10px;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   font-size: clamp(16px, 5vw, 40px);
 }
 </style>
