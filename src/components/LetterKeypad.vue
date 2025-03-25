@@ -1,12 +1,20 @@
 <template>
+  <input type="text" class="input-display" v-model="userInput" readonly />
   <div class="key-container">
     <div v-for="(row, rowIndex) in keyRows" :key="rowIndex">
-      <LetterKey v-for="(key, keyIndex) in row" :key="keyIndex" :letter="key" class="key-row" />
+      <LetterKey
+        v-for="(key, keyIndex) in row"
+        :key="keyIndex"
+        :letter="key"
+        class="key-row"
+        @click="addLetter(key)"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { ref } from 'vue'
 import LetterKey from './LetterKey.vue'
 
 export default {
@@ -23,10 +31,23 @@ export default {
       ],
     }
   },
+  setup() {
+    const userInput = ref('')
+
+    const addLetter = (letter: string) => {
+      userInput.value += letter
+    }
+
+    return { userInput, addLetter }
+  },
 }
 </script>
 
 <style scoped>
+.input-display {
+  text-align: center;
+}
+
 .key-container {
   display: flex;
   flex-direction: column;
