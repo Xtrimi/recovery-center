@@ -1,12 +1,12 @@
 <template>
   <input type="text" class="input-display" v-model="userInput" readonly />
   <div class="key-container">
-    <div v-for="(row, rowIndex) in keyRows" :key="rowIndex">
+    <div v-for="(row, rowIndex) in keyRows" :key="rowIndex" class="key-row">
       <LetterKey
         v-for="(key, keyIndex) in row"
         :key="keyIndex"
         :letter="key"
-        class="key-row"
+        ref="keyButtons"
         @click="addLetter(key)"
       />
     </div>
@@ -33,12 +33,25 @@ export default {
   },
   setup() {
     const userInput = ref('')
+    const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
 
-    const addLetter = (letter: string) => {
+    function addLetter(letter: string) {
       userInput.value += letter
     }
 
-    return { userInput, addLetter }
+    async function tryAgain() {
+      for (const letter of userInput.value) {
+        const keyButton = keyButtons.value.find((obj) => {
+          return obj.$props.letter == letter
+        })
+        console.log(`trying to glow ${letter}`)
+        if (keyButton) {
+          keyButton.glow('blue')
+        }
+      }
+    }
+
+    return { userInput, addLetter, tryAgain }
   },
 }
 </script>

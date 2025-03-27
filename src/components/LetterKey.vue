@@ -1,18 +1,32 @@
 <template>
-  <button :id="id">{{ letter }}</button>
+  <button ref="keyButton" @click="glow('white')">{{ letter }}</button>
 </template>
 
 <script lang="ts">
-import { nanoid } from 'nanoid'
+import { ref } from 'vue'
 
 export default {
   props: {
     letter: { required: true, type: String },
   },
-  data() {
-    return {
-      id: 'button-' + nanoid(),
+  setup() {
+    const keyButton = ref<HTMLButtonElement>()
+
+    function glow(color: string) {
+      if (keyButton.value) {
+        keyButton.value.style.backgroundColor = color
+        keyButton.value.classList.add('fade-glow')
+        console.log('glow')
+
+        setTimeout(() => {
+          keyButton.value!.classList.remove('fade-glow')
+        }, 200)
+      } else {
+        console.log('no glow')
+      }
     }
+
+    return { keyButton, glow }
   },
 }
 </script>
@@ -29,5 +43,10 @@ button {
   justify-content: center;
 
   font-size: clamp(16px, 5vw, 40px);
+}
+
+button.fade-glow {
+  background-color: transparent;
+  transition: background-color 1s linear;
 }
 </style>

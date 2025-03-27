@@ -2,9 +2,11 @@
   <div id="app">
     <div class="toggle-area" @click.stop="isKeypadVisible = true"></div>
 
-    <div v-if="isKeypadVisible" class="keypad-container" ref="keypadContainer">
-      <LetterKeypad />
+    <div v-show="isKeypadVisible" class="keypad-container" ref="keypadContainer">
+      <LetterKeypad ref="keypadRef" />
     </div>
+
+    <button class="retry" @click="tryAgain"></button>
   </div>
 </template>
 
@@ -19,9 +21,14 @@ export default {
   },
   setup() {
     const isKeypadVisible = ref(false)
-    const keypadContainer = ref<HTMLElement | null>(null)
+    const keypadContainer = ref<HTMLElement>()
+    const keypadRef = ref<InstanceType<typeof LetterKeypad>>()
 
-    const clickOutsideEvent = (event: MouseEvent) => {
+    function tryAgain() {
+      keypadRef.value!.tryAgain()
+    }
+
+    function clickOutsideEvent(event: MouseEvent) {
       if (keypadContainer.value && !keypadContainer.value.contains(event.target as Node)) {
         isKeypadVisible.value = false
       }
@@ -35,7 +42,7 @@ export default {
       document.removeEventListener('click', clickOutsideEvent)
     })
 
-    return { isKeypadVisible, keypadContainer }
+    return { isKeypadVisible, keypadContainer, keypadRef, tryAgain }
   },
 }
 </script>
@@ -48,10 +55,10 @@ export default {
 
 .toggle-area {
   position: absolute;
-  width: 228px;
-  height: 218px;
-  top: 61%;
-  left: 62%;
+  width: 20vw; /* ughhhh why doesnt it match up with backbround */
+  height: 30vh;
+  top: 60vh;
+  left: 63vw;
   transform: translate(-50%, -50%);
   background: rgba(255, 255, 255, 0);
   border-radius: 10px;
@@ -76,5 +83,17 @@ export default {
   flex-direction: column;
   justify-content: flex-end;
   padding-bottom: 1em;
+}
+
+/*.retry {
+  padding: 20px;
+  border: none;
+  border-radius: 50%;
+}*/
+.retry {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 200px;
 }
 </style>
