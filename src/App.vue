@@ -31,7 +31,7 @@ export default {
     }
 
     function submit() {
-      console.log('Go button clicked')
+      keypadRef.value!.submit()
     }
 
     return { isZoomed, keypadRef, tryAgain, submit }

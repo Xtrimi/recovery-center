@@ -4,7 +4,7 @@
     :x="x"
     :y="y"
     rx="5"
-    @click="glow('rgba(0, 0, 255, 0.2)')"
+    @click="glow('rgba(255, 255, 255, 0.2)')"
     class="letter-key"
   />
 </template>

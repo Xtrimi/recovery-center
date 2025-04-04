@@ -1,5 +1,5 @@
 <template>
-  <text class="input-display" x="1400" y="700" text-anchor="middle" dominant-baseline="middle">
+  <text class="input-display" x="1420" y="670" text-anchor="middle" dominant-baseline="middle">
     {{ userInput }}
   </text>
 
@@ -40,25 +40,29 @@ export default {
   },
   setup() {
     const userInput = ref('')
+    const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
 
     function addLetter(letter: string) {
       userInput.value += letter
     }
 
     async function tryAgain() {
-      const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
-
       for (const letter of userInput.value) {
         const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
 
         if (keyButton) {
-          keyButton.glow('blue')
+          console.log('!')
+          keyButton.glow('rgba(0, 0, 255, 0.2)')
           await new Promise((resolve) => setTimeout(resolve, 100))
         }
       }
     }
 
-    return { userInput, addLetter, tryAgain }
+    function submit() {
+      userInput.value = ':)'
+    }
+
+    return { userInput, keyButtons, addLetter, tryAgain, submit }
   },
 }
 </script>
@@ -66,6 +70,8 @@ export default {
 <style scoped>
 .input-display {
   font-family: 'Eurostile';
+  font-size: 48px;
+  fill: green;
   text-align: center;
 }
 
