@@ -1,16 +1,23 @@
 <template>
-  <input type="text" class="input-display" v-model="userInput" readonly />
-  <div class="key-container">
-    <div v-for="(row, rowIndex) in keyRows" :key="rowIndex" class="key-row">
-      <LetterKey
-        v-for="(key, keyIndex) in row"
-        :key="keyIndex"
-        :letter="key"
-        ref="keyButtons"
-        @click="addLetter(key)"
-      />
-    </div>
-  </div>
+  <text class="input-display" x="1400" y="700" text-anchor="middle" dominant-baseline="middle">
+    {{ userInput }}
+  </text>
+
+  <g
+    v-for="(row, rowIndex) in keyRows"
+    :key="rowIndex"
+    :transform="`translate(0 ${rowIndex * 56.8 + 743.8})`"
+  >
+    <LetterKey
+      v-for="(key, keyIndex) in row"
+      :key="keyIndex"
+      :letter="key"
+      :x="keyIndex * 46.27 + 1247.2"
+      :y="0"
+      ref="keyButtons"
+      @click="addLetter(key)"
+    />
+  </g>
 </template>
 
 <script lang="ts">
@@ -33,20 +40,20 @@ export default {
   },
   setup() {
     const userInput = ref('')
-    const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
 
     function addLetter(letter: string) {
       userInput.value += letter
     }
 
     async function tryAgain() {
+      const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
+
       for (const letter of userInput.value) {
-        const keyButton = keyButtons.value.find((obj) => {
-          return obj.$props.letter == letter
-        })
-        console.log(`trying to glow ${letter}`)
+        const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
+
         if (keyButton) {
           keyButton.glow('blue')
+          await new Promise((resolve) => setTimeout(resolve, 100))
         }
       }
     }
