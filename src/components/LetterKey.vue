@@ -42,6 +42,7 @@ button {
   align-items: center;
   justify-content: center;
 
+  font-family: 'Eurostile', sans-serif;
   font-size: clamp(16px, 5vw, 40px);
 }
 
