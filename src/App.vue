@@ -49,7 +49,7 @@ export default {
 }
 
 #wrapper.zoomed {
-  transform: scale(2.3) translate(calc((100% - 198vw) / 4.6), calc((100% - 180vh) / 4.6)); /* im kinda just praying atp this isnt even consistent */
+  transform: translate(calc((100% - 455vw) / 4.6), calc((100% - 410vh) / 4.6)) scale(2.3); /* im kinda just praying atp this isnt even consistent */
 }
 
 .background {
