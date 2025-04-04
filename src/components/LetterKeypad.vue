@@ -65,6 +65,7 @@ export default {
 
 <style scoped>
 .input-display {
+  font-family: 'Eurostile';
   text-align: center;
 }
 
