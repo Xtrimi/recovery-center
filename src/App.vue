@@ -1,5 +1,5 @@
 <template>
-  <div id="wrapper" :class="{ zoomed: isZoomed }">
+  <div id="wrapper" :class="{ zoomed: isZoomed, zooming: isZooming }">
     <img src="@/assets/background.png" class="background" />
 
     <svg class="overlay" viewBox="0 0 2304 1296" preserveAspectRatio="xMidYMid slice">
@@ -9,7 +9,7 @@
     </svg>
   </div>
 
-  <button class="zoomer" @click="isZoomed = !isZoomed">
+  <button class="zoomer" @click="toggleZoom">
     <img v-if="!isZoomed" src="@/assets/zoom.svg" class="zoom-icon" />
     <img v-else src="@/assets/unzoom.svg" class="zoom-icon" />
   </button>
@@ -24,6 +24,7 @@ export default {
   components: { LetterKeypad },
   setup() {
     const isZoomed = ref(false)
+    const isZooming = ref(false)
     const keypadRef = ref<InstanceType<typeof LetterKeypad>>()
 
     function tryAgain() {
@@ -34,7 +35,16 @@ export default {
       keypadRef.value!.submit()
     }
 
-    return { isZoomed, keypadRef, tryAgain, submit }
+    function toggleZoom() {
+      isZoomed.value = !isZoomed.value
+      isZooming.value = true
+
+      setTimeout(() => {
+        isZooming.value = false
+      }, 500)
+    }
+
+    return { isZoomed, isZooming, keypadRef, tryAgain, submit, toggleZoom }
   },
 }
 </script>
@@ -42,14 +52,17 @@ export default {
 <style scoped>
 #wrapper {
   position: fixed;
-  transition: transform 0.5s ease;
   transform-origin: center center;
   top: 0;
   left: 0;
 }
 
 #wrapper.zoomed {
-  transform: translate(calc((100% - 455vw) / 4.6), calc((100% - 410vh) / 4.6)) scale(2.3); /* im kinda just praying atp this isnt even consistent */
+  transform: translate(calc((100% - 455vw) / 4.6), calc((100% - 410vh) / 4.6)) scale(2.3);
+}
+
+#wrapper.zooming {
+  transition: transform 0.5s ease;
 }
 
 .background {
