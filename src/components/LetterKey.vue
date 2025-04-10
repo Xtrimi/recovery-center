@@ -1,12 +1,5 @@
 <template>
-  <rect
-    ref="keyButton"
-    :x="x"
-    :y="y"
-    rx="5"
-    @click="glow('rgba(255, 255, 255, 0.2)')"
-    class="letter-key"
-  />
+  <rect ref="keyButton" :x="x" :y="y" rx="5" class="letter-key" />
 </template>
 
 <script lang="ts">
@@ -22,12 +15,13 @@ export default {
     const keyButton = ref<SVGRectElement>()
 
     function glow(color: string) {
-      if (!keyButton.value) return
+      keyButton.value!.style.transition = 'none'
+      keyButton.value!.style.fill = color
 
-      keyButton.value.style.fill = color
       setTimeout(() => {
+        keyButton.value!.style.transition = 'fill 0.3s ease'
         keyButton.value!.style.fill = 'rgba(117, 117, 117, 0)'
-      }, 200)
+      }, 0)
     }
 
     return { keyButton, glow }
@@ -45,6 +39,5 @@ export default {
   cursor: pointer;
   fill: rgba(117, 117, 117, 0);
   filter: blur(5px);
-  transition: all 0.3s ease;
 }
 </style>
