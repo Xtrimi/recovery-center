@@ -17,8 +17,7 @@ export default {
     const retrySfx = new Audio(`sfx/retry${props.letter}.wav`)
 
     function forceReflow() {
-      const dummy = keyButton.value!.getAttribute('width')
-      keyButton.value!.setAttribute('width', dummy || '')
+      keyButton.value!.getBBox()
     }
 
     function glow(color: string) {
