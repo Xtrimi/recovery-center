@@ -29,16 +29,16 @@ export default {
     LetterKey,
   },
   data() {
-    return {
-      keyRows: [
-        ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
-        ['I', 'J', 'K', 'L', 'M', 'N'],
-        ['O', 'P', 'Q', 'R', 'S', 'T'],
-        ['U', 'V', 'W', 'X', 'Y', 'Z'],
-      ],
-    }
+    return {}
   },
   setup() {
+    const keyRows = [
+      ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
+      ['I', 'J', 'K', 'L', 'M', 'N'],
+      ['O', 'P', 'Q', 'R', 'S', 'T'],
+      ['U', 'V', 'W', 'X', 'Y', 'Z'],
+    ]
+
     const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
     const inputDisplay = ref('')
 
@@ -51,7 +51,7 @@ export default {
       }
 
       const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
-      keyButton!.glow('rgba(255, 255, 255, 0.2)')
+      keyButton!.handleClick()
 
       userInput += letter
       inputDisplay.value = userInput
@@ -63,7 +63,7 @@ export default {
       inputDisplay.value = ''
       for (const letter of userInput) {
         const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
-        keyButton!.glow('rgba(0, 0, 255, 0.2)')
+        keyButton!.handleRetry()
 
         inputDisplay.value += letter
 
@@ -78,11 +78,11 @@ export default {
         return
       }
 
-      //todo: lock this and whatever other thingsn eed to belocked, i only modified tryAgain
       inputDisplay.value = ':)'
+      userInput = ''
     }
 
-    return { inputDisplay, keyButtons, addLetter, tryAgain, submit }
+    return { keyRows, inputDisplay, keyButtons, addLetter, tryAgain, submit }
   },
 }
 </script>

@@ -11,20 +11,37 @@ export default {
     x: { type: Number, default: 0 },
     y: { type: Number, default: 0 },
   },
-  setup() {
+  setup(props) {
     const keyButton = ref<SVGRectElement>()
+    const normalSfx = new Audio(`sfx/normal${props.letter}.wav`)
+    const retrySfx = new Audio(`sfx/retry${props.letter}.wav`)
+
+    function forceReflow() {
+      const dummy = keyButton.value!.getAttribute('width')
+      keyButton.value!.setAttribute('width', dummy || '')
+    }
 
     function glow(color: string) {
       keyButton.value!.style.transition = 'none'
       keyButton.value!.style.fill = color
 
-      setTimeout(() => {
-        keyButton.value!.style.transition = 'fill 0.3s ease'
-        keyButton.value!.style.fill = 'rgba(117, 117, 117, 0)'
-      }, 0)
+      forceReflow()
+
+      keyButton.value!.style.transition = 'fill 0.3s ease'
+      keyButton.value!.style.fill = 'rgba(117, 117, 117, 0)'
     }
 
-    return { keyButton, glow }
+    function handleClick() {
+      normalSfx.play()
+      glow('rgba(255, 255, 255, 0.2)')
+    }
+
+    function handleRetry() {
+      retrySfx.play()
+      glow('rgba(0, 0, 255, 0.2)')
+    }
+
+    return { keyButton, handleClick, handleRetry }
   },
 }
 </script>
