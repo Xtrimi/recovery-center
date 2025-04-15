@@ -15,13 +15,14 @@
       :x="keyIndex * 46.27 + 1247.2"
       :y="0"
       ref="keyButtons"
-      @click="addLetter(key)"
+      @click="handleClick(key)"
     />
   </g>
 </template>
 
 <script lang="ts">
 import { ref } from 'vue'
+import { Sound } from '@/utils/Sound'
 import LetterKey from './LetterKey.vue'
 
 export default {
@@ -42,10 +43,14 @@ export default {
     const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
     const inputDisplay = ref('')
 
+    const pressSfx = new Sound('sfx/press.wav')
+    const dropSfx = new Sound('sfx/drop.wav')
+    const successSfx = new Sound('sfx/success.wav')
+
     let stateLocked = false
     let userInput = ''
 
-    function addLetter(letter: string) {
+    function handleClick(letter: string) {
       if (stateLocked) {
         return
       }
@@ -73,16 +78,31 @@ export default {
       stateLocked = false
     }
 
-    function submit() {
+    async function submit() {
       if (stateLocked) {
         return
       }
 
+      if (userInput === '') {
+        return
+      }
+
+      pressSfx.play()
+      await new Promise((resolve) => setTimeout(resolve, 200)) // 0.5 second delay
+
+      dropSfx.play()
+      await new Promise((resolve) => setTimeout(resolve, 600)) // 0.5 second delay
+
+      successSfx.play()
       inputDisplay.value = ':)'
       userInput = ''
     }
 
-    return { keyRows, inputDisplay, keyButtons, addLetter, tryAgain, submit }
+    pressSfx.load()
+    dropSfx.load()
+    successSfx.load()
+
+    return { keyRows, inputDisplay, keyButtons, handleClick, tryAgain, submit }
   },
 }
 </script>

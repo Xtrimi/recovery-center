@@ -4,6 +4,7 @@
 
 <script lang="ts">
 import { ref } from 'vue'
+import { Sound } from '@/utils/Sound'
 
 export default {
   props: {
@@ -13,8 +14,8 @@ export default {
   },
   setup(props) {
     const keyButton = ref<SVGRectElement>()
-    const normalSfx = new Audio(`sfx/normal${props.letter}.wav`)
-    const retrySfx = new Audio(`sfx/retry${props.letter}.wav`)
+    const normalSfx = new Sound(`sfx/normal${props.letter}.wav`)
+    const retrySfx = new Sound(`sfx/retry${props.letter}.wav`)
 
     function forceReflow() {
       keyButton.value!.getBBox()
@@ -39,6 +40,9 @@ export default {
       retrySfx.play()
       glow('rgba(0, 0, 255, 0.2)')
     }
+
+    normalSfx.load()
+    retrySfx.load()
 
     return { keyButton, handleClick, handleRetry }
   },

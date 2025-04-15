@@ -1,11 +1,14 @@
-window.AudioContext = window.AudioContext || window.webkitAudioContext
-//todo: revise this
-//https://stackoverflow.com/questions/61453760/how-to-rapidly-play-multiple-copies-of-a-soundfile-in-javascript
-export class Sound {
-  private context = new AudioContext()
-  private buffer: AudioBuffer | null = null
+window.AudioContext = window.AudioContext
 
-  constructor(private url: string) {}
+const context = new AudioContext()
+
+export class Sound {
+  url = ''
+  buffer: AudioBuffer | null = null
+
+  constructor(url: string) {
+    this.url = url
+  }
 
   async load(): Promise<void> {
     if (!this.url) throw new Error('Missing sound URL')
@@ -13,7 +16,7 @@ export class Sound {
 
     const response = await fetch(this.url)
     const arrayBuffer = await response.arrayBuffer()
-    this.buffer = await this.context.decodeAudioData(arrayBuffer)
+    this.buffer = await context.decodeAudioData(arrayBuffer)
   }
 
   play(): void {
@@ -22,9 +25,9 @@ export class Sound {
       return
     }
 
-    const source = this.context.createBufferSource()
+    const source = context.createBufferSource()
     source.buffer = this.buffer
-    source.connect(this.context.destination)
+    source.connect(context.destination)
     source.start(0)
   }
 }
