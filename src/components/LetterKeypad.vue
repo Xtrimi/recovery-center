@@ -1,6 +1,6 @@
 <template>
-  <text class="input-display" x="1420" y="670" text-anchor="middle" dominant-baseline="middle">
-    {{ inputDisplay }}
+  <text class="input-display" x="1424" y="480" ref="inputDisplay">
+    {{ displayedInput }}
   </text>
 
   <g
@@ -41,7 +41,8 @@ export default {
     ]
 
     const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
-    const inputDisplay = ref('')
+    const inputDisplay = ref<SVGTextElement>()
+    const displayedInput = ref('')
 
     const pressSfx = new Sound('sfx/press.wav')
     const dropSfx = new Sound('sfx/drop.wav')
@@ -59,23 +60,26 @@ export default {
       keyButton!.handleClick()
 
       userInput += letter
-      inputDisplay.value = userInput
+      displayedInput.value = userInput
     }
 
     async function tryAgain() {
       stateLocked = true
 
-      inputDisplay.value = ''
+      inputDisplay.value!.style.fill = 'rgba(116, 181, 255, 0.7)'
+      displayedInput.value = ''
       for (const letter of userInput) {
         const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
         keyButton!.handleRetry()
 
-        inputDisplay.value += letter
+        displayedInput.value += letter
 
         await new Promise((resolve) => setTimeout(resolve, 100))
       }
 
       stateLocked = false
+
+      submit()
     }
 
     async function submit() {
@@ -94,7 +98,8 @@ export default {
       await new Promise((resolve) => setTimeout(resolve, 600)) // 0.5 second delay
 
       successSfx.play()
-      inputDisplay.value = ':)'
+      displayedInput.value = ':-)'
+      inputDisplay.value!.style.fill = 'rgba(54, 255, 104, 0.5)'
       userInput = ''
     }
 
@@ -102,17 +107,20 @@ export default {
     dropSfx.load()
     successSfx.load()
 
-    return { keyRows, inputDisplay, keyButtons, handleClick, tryAgain, submit }
+    return { keyRows, inputDisplay, displayedInput, keyButtons, handleClick, tryAgain, submit }
   },
 }
 </script>
 
 <style scoped>
 .input-display {
-  font-family: 'Eurostile';
-  font-size: 48px;
-  fill: green;
+  font-family: 'OCR A Extended';
+  font-size: 66px;
+  fill: rgba(54, 255, 104, 0.5);
   text-align: center;
+  transform: scaleY(1.4);
+  dominant-baseline: middle;
+  text-anchor: middle;
 }
 
 .key-container {

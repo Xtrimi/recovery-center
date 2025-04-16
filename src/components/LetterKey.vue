@@ -33,12 +33,12 @@ export default {
 
     function handleClick() {
       normalSfx.play()
-      glow('rgba(255, 255, 255, 0.2)')
+      glow('rgba(255, 255, 255, 0.4)')
     }
 
     function handleRetry() {
       retrySfx.play()
-      glow('rgba(0, 0, 255, 0.2)')
+      glow('rgba(116, 181, 255, 0.4)')
     }
 
     normalSfx.load()

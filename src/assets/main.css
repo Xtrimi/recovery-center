@@ -4,7 +4,16 @@
   font-weight: 400;
   src:
     local('Eurostile'),
-    url('./eurostile.woff') format('woff');
+    url('./Eurostile.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'OCR A Extended';
+  font-style: normal;
+  font-weight: 400;
+  src:
+    local('OCR A Extended'),
+    url('./OCRAExtended.woff') format('woff');
 }
 
 :global(html, body, #app) {
