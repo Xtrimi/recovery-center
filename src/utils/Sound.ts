@@ -1,27 +1,26 @@
-window.AudioContext = window.AudioContext
-
 const context = new AudioContext()
 
 export class Sound {
-  url = ''
+  src = ''
   buffer: AudioBuffer | null = null
 
-  constructor(url: string) {
-    this.url = url
+  constructor(src: string) {
+    this.src = src
+    this.load()
   }
 
   async load(): Promise<void> {
-    if (!this.url) throw new Error('Missing sound URL')
+    if (!this.src) throw new Error('missing sound src')
     if (this.buffer) return
 
-    const response = await fetch(this.url)
+    const response = await fetch(this.src)
     const arrayBuffer = await response.arrayBuffer()
     this.buffer = await context.decodeAudioData(arrayBuffer)
   }
 
   play(): void {
     if (!this.buffer) {
-      console.warn('Sound not loaded')
+      console.warn('sound not loaded')
       return
     }
 
