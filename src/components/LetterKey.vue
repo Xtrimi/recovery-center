@@ -1,14 +1,5 @@
 <template>
-  <rect
-    ref="keyButton"
-    :x="x"
-    :y="y"
-    rx="5"
-    class="letter-key"
-    :class="{ glow: isGlowing }"
-    :style="{ '--glow-color': glowColor }"
-    @click="handleClick"
-  />
+  <rect ref="keyButton" :x="x" :y="y" rx="5" class="letter-key" @click="handleClick" />
 </template>
 
 <script setup lang="ts">
@@ -23,29 +14,25 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const isGlowing = ref(false)
-const glowColor = ref('')
+const keyButton = ref<SVGRectElement>()
 
 const normalSfx = new Sound(`sfx/normal${props.letter}.wav`)
 const retrySfx = new Sound(`sfx/retry${props.letter}.wav`)
 
-function glow(color: string) {
-  glowColor.value = color
-  isGlowing.value = true
-
-  setTimeout(() => {
-    isGlowing.value = false
-  }, 300)
-  /*keyButton.value!.style.transition = 'none'
-  keyButton.value!.style.fill = color
-
-  isGlowing.value = true
-
-  keyButton.value!.style.transition = 'fill 0.3s ease'
-  keyButton.value!.style.fill = 'rgba(117, 117, 117, 0)'*/
+function forceReflow() {
+  keyButton.value!.getBBox()
 }
 
-//TODO: handle the glowing and click emitting and yadda yadda
+function glow(color: string) {
+  keyButton.value!.style.transition = 'none'
+  keyButton.value!.style.fill = color
+
+  forceReflow()
+
+  keyButton.value!.style.transition = 'fill 0.3s ease'
+  keyButton.value!.style.fill = 'rgba(117, 117, 117, 0)'
+}
+
 function handleClick() {
   normalSfx.play()
   glow('rgba(255, 255, 255, 0.4)')
@@ -72,17 +59,5 @@ defineExpose({
   cursor: pointer;
   fill: rgba(117, 117, 117, 0);
   filter: blur(5px);
-}
-
-@keyframes glow {
-  from {
-    fill: var(--glow-color);
-  }
-  to {
-    fill: rgba(117, 117, 117, 0);
-  }
-}
-
-.letter-key.glow {
 }
 </style>
