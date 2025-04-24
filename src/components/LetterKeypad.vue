@@ -14,9 +14,7 @@
       {{ displayedInput }}
     </text>
 
-    <rect x="535" y="538" width="577" height="126" fill="rgb(51, 51, 51)" />
-    <path :d="panelPath" fill="rgb(170, 170, 170)" style="transition: d 0.12s ease-in" />
-
+    <DispenserBox ref="dispenserBox" />
     <g
       v-for="(row, rowIndex) in keyRows"
       :key="rowIndex"
@@ -37,9 +35,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { Sound } from '@/utils/Sound'
 import LetterKey from './LetterKey.vue'
+import DispenserBox from './DispenserBox.vue'
 
 const keyRows = [
   ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
@@ -49,28 +48,10 @@ const keyRows = [
 ]
 
 const inputDisplay = ref<SVGTextElement>()
+const dispenserBox = ref<InstanceType<typeof DispenserBox>>()
 const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
 const displayedInput = ref('')
 const isRetrying = ref(false)
-const isOpen = ref(false)
-
-const panelPosition = { X: 535, Y: 538 }
-const panelSize = { X: 577, Y: 126 }
-const panelSkew = { X: 120, Y: panelSize.Y * 0.9 }
-const panelPath = computed(() => {
-  const rightX = panelPosition.X + panelSize.X
-
-  const topLeft = `${panelPosition.X},${panelPosition.Y}`
-  const topRight = `${rightX},${panelPosition.Y}`
-  const bottomLeft = isOpen.value
-    ? `${panelPosition.X - panelSkew.X},${panelPosition.Y + panelSize.Y - panelSkew.Y}`
-    : `${panelPosition.X},${panelPosition.Y + panelSize.Y}`
-  const bottomRight = isOpen.value
-    ? `${rightX + panelSkew.X},${panelPosition.Y + panelSize.Y - panelSkew.Y}`
-    : `${rightX},${panelPosition.Y + panelSize.Y}`
-
-  return `M${topLeft} L${topRight} L${bottomRight} L${bottomLeft} Z`
-})
 
 const pressSfx = new Sound('sfx/press.wav')
 const dropSfx = new Sound('sfx/drop.wav')
@@ -142,11 +123,10 @@ async function submit() {
 
   glowText()
   dropSfx.play()
-  isOpen.value = true
+  dispenserBox.value!.flip()
   await new Promise((resolve) => setTimeout(resolve, 160))
 
   successSfx.play()
-  isOpen.value = false
 
   isRetrying.value = false
   displayedInput.value = ':-)'
@@ -200,28 +180,5 @@ async function submit() {
   display: flex;
   gap: 1px;
   margin-bottom: 1px;
-}
-
-@keyframes flap {
-  0% {
-    d: path('M535,538 L1112,538 L1112,664 L535,664 Z');
-    fill: #aaa;
-  }
-  25% {
-    d: path('M535,538 L1112,538 L1232,610 L415,610 Z');
-    fill: #ccc;
-  }
-  50% {
-    d: path('M535,538 L1112,538 L1162,660 L475,660 Z');
-    fill: #bbb;
-  }
-  75% {
-    d: path('M535,538 L1112,538 L1125,660 L450,660 Z');
-    fill: #999;
-  }
-  100% {
-    d: path('M535,538 L1112,538 L1112,664 L535,664 Z');
-    fill: #aaa;
-  }
 }
 </style>
