@@ -10,9 +10,7 @@
       height="62"
       @click="tryAgain"
     />
-    <text class="input-display" ref="inputDisplay" :class="{ retry: isRetrying }" x="1424" y="480">
-      {{ displayedInput }}
-    </text>
+    <InputDisplay ref="inputDisplay" :displayText="displayText" :isRetrying="isRetrying" />
 
     <DispenserBox ref="dispenserBox" />
     <g
@@ -39,6 +37,7 @@ import { ref } from 'vue'
 import { Sound } from '@/utils/Sound'
 import LetterKey from './LetterKey.vue'
 import DispenserBox from './DispenserBox.vue'
+import InputDisplay from './InputDisplay.vue'
 
 const keyRows = [
   ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
@@ -47,10 +46,11 @@ const keyRows = [
   ['U', 'V', 'W', 'X', 'Y', 'Z'],
 ]
 
-const inputDisplay = ref<SVGTextElement>()
 const dispenserBox = ref<InstanceType<typeof DispenserBox>>()
 const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
-const displayedInput = ref('')
+const inputDisplay = ref<InstanceType<typeof InputDisplay>>()
+
+const displayText = ref('')
 const isRetrying = ref(false)
 
 const pressSfx = new Sound('sfx/press.wav')
@@ -59,20 +59,6 @@ const successSfx = new Sound('sfx/success.wav')
 
 let stateLocked = false
 let userInput = ''
-
-function forceTextReflow() {
-  inputDisplay.value!.getBBox()
-}
-
-function glowText() {
-  inputDisplay.value!.style.transition = 'none'
-  inputDisplay.value!.style.fill = 'rgba(54, 255, 104, 1)'
-
-  forceTextReflow()
-
-  inputDisplay.value!.style.transition = 'fill 0.3s ease'
-  inputDisplay.value!.style.fill = 'rgba(54, 255, 104, 0.5)'
-}
 
 function handleClick(letter: string) {
   if (stateLocked) {
@@ -83,7 +69,7 @@ function handleClick(letter: string) {
   keyButton!.handleClick()
 
   userInput += letter
-  displayedInput.value = userInput.slice(-9)
+  displayText.value = userInput.slice(-9)
 }
 
 async function tryAgain() {
@@ -93,13 +79,13 @@ async function tryAgain() {
 
   stateLocked = true
   isRetrying.value = true
-  displayedInput.value = ''
+  displayText.value = ''
 
   for (const letter of userInput) {
     const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
     keyButton!.handleRetry()
 
-    displayedInput.value = (displayedInput.value + letter).slice(-9)
+    displayText.value = (displayText.value + letter).slice(-9)
 
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
@@ -119,17 +105,17 @@ async function submit() {
   }
 
   pressSfx.play()
-  await new Promise((resolve) => setTimeout(resolve, 100))
+  await new Promise((resolve) => setTimeout(resolve, 200))
 
-  glowText()
   dropSfx.play()
+  inputDisplay.value!.glowText()
   dispenserBox.value!.flip()
   await new Promise((resolve) => setTimeout(resolve, 160))
 
   successSfx.play()
 
   isRetrying.value = false
-  displayedInput.value = ':-)'
+  displayText.value = ':-)'
   userInput = ''
 }
 </script>
@@ -154,20 +140,6 @@ async function submit() {
 
 .interactable:hover {
   fill: rgba(255, 255, 255, 0.1);
-}
-
-.input-display {
-  font-family: 'OCR A Extended';
-  font-size: 66px;
-  fill: rgba(54, 255, 104, 0.5);
-  text-align: center;
-  transform: scaleY(1.4);
-  dominant-baseline: middle;
-  text-anchor: middle;
-}
-
-.input-display.retry {
-  fill: rgba(116, 181, 255, 0.7);
 }
 
 .key-container {

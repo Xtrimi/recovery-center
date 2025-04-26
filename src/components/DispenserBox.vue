@@ -1,11 +1,12 @@
 <template>
   <rect x="535" y="538" width="577" height="126" fill="rgb(51, 51, 51)" />
 
-  <path ref="panel" :d="closedD" fill="rgb(170, 170, 170)" pointer-events="none">
+  <path ref="box" :d="closedD" fill="rgb(170, 170, 170)">
     <animate
       id="animD"
       attributeName="d"
-      dur="0.8s"
+      dur="0.7s"
+      begin="indefinite"
       fill="freeze"
       calcMode="spline"
       keyTimes="0; 0.25; 0.5; 0.75; 1"
@@ -16,7 +17,8 @@
     <animate
       id="animFill"
       attributeName="fill"
-      dur="0.8s"
+      dur="0.7s"
+      begin="indefinite"
       fill="freeze"
       calcMode="spline"
       keyTimes="0; 0.25; 0.5; 0.75; 1"
@@ -61,22 +63,19 @@ const backD = computed(
   Z`,
 )
 
-const panel = ref<SVGPathElement | null>(null)
+const box = ref<SVGPathElement | null>(null)
+
 let animD: SVGAnimateElement | null = null
 let animFill: SVGAnimateElement | null = null
-//TODO refactor this
+
 onMounted(() => {
-  if (panel.value) {
-    animD = panel.value.querySelector('#animD')
-    animFill = panel.value.querySelector('#animFill')
-  }
+  animD = box.value!.querySelector('#animD')
+  animFill = box.value!.querySelector('#animFill')
 })
 
 function flip() {
-  if (animD && animFill) {
-    animD.beginElement()
-    animFill.beginElement()
-  }
+  animD!.beginElement()
+  animFill!.beginElement()
 }
 
 defineExpose({ flip })
