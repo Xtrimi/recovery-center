@@ -27,13 +27,23 @@ function forceTextReflow() {
 }
 
 function glowText() {
-  inputDisplay.value!.style.transition = 'none'
-  inputDisplay.value!.style.fill = 'rgba(54, 255, 104, 1)'
+  if (!inputDisplay.value) {
+    return
+  }
+
+  const currentFill = inputDisplay.value.style.fill
+  const fullAlphaFill = currentFill.replace(
+    /rgba?\((\d+,\s*\d+,\s*\d+)(?:,\s*[\d.]+)?\)/,
+    'rgba($1, 1)',
+  )
+
+  inputDisplay.value.style.transition = 'none'
+  inputDisplay.value.style.fill = fullAlphaFill
 
   forceTextReflow()
 
-  inputDisplay.value!.style.transition = 'fill 0.3s ease'
-  inputDisplay.value!.style.fill = 'rgba(54, 255, 104, 0.5)'
+  inputDisplay.value.style.transition = 'fill 0.3s ease'
+  inputDisplay.value.style.fill = currentFill
 }
 
 defineExpose({
