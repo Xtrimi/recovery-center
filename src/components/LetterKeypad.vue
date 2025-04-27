@@ -63,6 +63,7 @@ const keyButtons = new Map<string, InstanceType<typeof LetterKey>>()
 
 let userInput = ''
 let lastUserInput = ''
+let isReplaying = false
 
 onMounted(() => {
   for (const button of keyButtonRefs.value) {
@@ -112,8 +113,9 @@ async function tryAgain() {
   }
 
   pressSfx.play()
-  isRetrying.value = true
   displayText.value = ''
+  isRetrying.value = true
+  isReplaying = true
 
   let currentDisplay = ''
   for (let i = 0; i < lastUserInput.length; i++) {
@@ -128,6 +130,7 @@ async function tryAgain() {
     await new Promise((resolve) => setTimeout(resolve, 75))
   }
 
+  isReplaying = false
   submit(true)
 }
 
@@ -149,6 +152,10 @@ async function submit(isAfterRetry = false) {
   await new Promise((resolve) => setTimeout(resolve, 600))
 
   successSfx.play()
+
+  if (isReplaying) {
+    return
+  }
 
   isRetrying.value = false
   displayText.value = ':-)'
