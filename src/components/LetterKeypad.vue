@@ -1,5 +1,8 @@
 <template>
   <svg class="overlay" viewBox="0 0 2304 1296" preserveAspectRatio="xMidYMid slice">
+    <InputDisplay ref="inputDisplay" :displayText="displayText" :isRetrying="isRetrying" />
+    <circle class="indicator" :class="{ retry: isRetrying }" cx="1567.1" cy="843.3" r="35.5" />
+
     <circle class="interactable" title="go" cx="1736" cy="784" r="55" @click="submit" />
     <rect
       class="interactable"
@@ -10,7 +13,6 @@
       height="62"
       @click="tryAgain"
     />
-    <InputDisplay ref="inputDisplay" :displayText="displayText" :isRetrying="isRetrying" />
 
     <DispenserBox ref="dispenserBox" />
     <g
@@ -87,7 +89,7 @@ async function tryAgain() {
 
     displayText.value = (displayText.value + letter).slice(-9)
 
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise((resolve) => setTimeout(resolve, 75))
   }
 
   stateLocked = false
@@ -128,6 +130,14 @@ async function submit() {
   width: 100vw;
   height: 100vh;
   pointer-events: none;
+}
+
+.indicator {
+  fill: rgba(18, 108, 28, 1);
+}
+
+.indicator.retry {
+  fill: rgb(36, 105, 180);
 }
 
 .interactable {
