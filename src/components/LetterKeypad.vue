@@ -94,14 +94,14 @@ async function tryAgain() {
 }
 
 async function submit(isAfterRetry = false) {
-  if (lastUserInput != userInput && userInput.length > 0) {
-    lastUserInput = userInput
-  }
-  userInput = ''
-
   if (!isAfterRetry) {
+    if (userInput.length > 0) {
+      lastUserInput = userInput
+    }
+
     pressSfx.play()
   }
+  userInput = ''
 
   await new Promise((resolve) => setTimeout(resolve, 150))
 
