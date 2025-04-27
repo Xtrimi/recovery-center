@@ -22,6 +22,8 @@ const props = defineProps<Props>()
 
 const inputDisplay = ref<SVGTextElement>()
 
+let fadeTimeout: number | null = null
+
 function forceTextReflow() {
   inputDisplay.value!.getBBox()
 }
@@ -31,19 +33,23 @@ function glowText() {
     return
   }
 
-  const currentFill = inputDisplay.value.style.fill
-  const fullAlphaFill = currentFill.replace(
-    /rgba?\((\d+,\s*\d+,\s*\d+)(?:,\s*[\d.]+)?\)/,
-    'rgba($1, 1)',
-  )
+  if (fadeTimeout) {
+    clearTimeout(fadeTimeout)
+  }
+
+  const lighterFill = props.isRetrying ? 'rgba(171, 210, 255, 0.89)' : 'rgba(0, 255, 64, 0.942)'
 
   inputDisplay.value.style.transition = 'none'
-  inputDisplay.value.style.fill = fullAlphaFill
+  inputDisplay.value.style.fill = lighterFill
 
   forceTextReflow()
 
   inputDisplay.value.style.transition = 'fill 0.3s ease'
-  inputDisplay.value.style.fill = currentFill
+  inputDisplay.value.style.fill = ''
+
+  fadeTimeout = setTimeout(() => {
+    inputDisplay.value!.style.transition = 'none'
+  }, 280)
 }
 
 defineExpose({

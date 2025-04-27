@@ -105,12 +105,12 @@ async function submit() {
   }
 
   pressSfx.play()
-  await new Promise((resolve) => setTimeout(resolve, 200))
+  await new Promise((resolve) => setTimeout(resolve, 150))
 
   dropSfx.play()
   inputDisplay.value!.glowText()
   dispenserBox.value!.flip()
-  await new Promise((resolve) => setTimeout(resolve, 160))
+  await new Promise((resolve) => setTimeout(resolve, 600))
 
   successSfx.play()
 
