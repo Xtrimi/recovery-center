@@ -26,16 +26,16 @@
         :letter="key"
         :x="keyIndex * 46.27 + 1247.2"
         :y="0"
-        ref="keyButtons"
+        ref="keyButtonRefs"
         class="interactable"
-        @click="handleClick(key)"
+        @click="handlePress(key)"
       />
     </g>
   </svg>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Sound } from '@/utils/Sound'
 import LetterKey from './LetterKey.vue'
 import DispenserBox from './DispenserBox.vue'
@@ -48,8 +48,8 @@ const keyRows = [
   ['U', 'V', 'W', 'X', 'Y', 'Z'],
 ]
 
+const keyButtonRefs = ref<InstanceType<typeof LetterKey>[]>([])
 const dispenserBox = ref<InstanceType<typeof DispenserBox>>()
-const keyButtons = ref<InstanceType<typeof LetterKey>[]>([])
 const inputDisplay = ref<InstanceType<typeof InputDisplay>>()
 
 const displayText = ref('')
@@ -59,12 +59,48 @@ const pressSfx = new Sound('sfx/press.wav')
 const dropSfx = new Sound('sfx/drop.wav')
 const successSfx = new Sound('sfx/success.wav')
 
+const keyButtons = new Map<string, InstanceType<typeof LetterKey>>()
+
 let userInput = ''
 let lastUserInput = ''
 
-function handleClick(letter: string) {
-  const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
-  keyButton!.handleClick()
+onMounted(() => {
+  for (const button of keyButtonRefs.value) {
+    keyButtons.set(button.$props.letter, button)
+    keyButtons.set(button.$props.letter.toLowerCase(), button)
+  }
+
+  addEventListener('keydown', handleKeyDown)
+})
+
+function handleKeyDown(event: KeyboardEvent) {
+  switch (event.key) {
+    case 'Enter':
+      submit()
+      break
+    case 'Shift':
+      tryAgain()
+      break
+    case 'Backspace':
+      userInput = userInput.slice(0, -1)
+      displayText.value = userInput.slice(-9)
+      break
+    default:
+      if (event.key.length === 1) {
+        handlePress(event.key)
+      }
+  }
+}
+
+function handlePress(letter: string) {
+  if (isRetrying.value) {
+    return
+  }
+
+  const keyButton = keyButtons.get(letter)
+  if (keyButton !== undefined) {
+    keyButton.handlePress()
+  }
 
   userInput += letter
   displayText.value = userInput.slice(-9)
@@ -82,8 +118,10 @@ async function tryAgain() {
   let currentDisplay = ''
   for (let i = 0; i < lastUserInput.length; i++) {
     const letter = lastUserInput[i]
-    const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
-    keyButton!.handleRetry()
+    const keyButton = keyButtons.get(letter)
+    if (keyButton !== undefined) {
+      keyButton.handleRetry()
+    }
 
     displayText.value = (currentDisplay += letter).slice(-9)
 

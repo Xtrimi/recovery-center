@@ -1,5 +1,5 @@
 <template>
-  <rect ref="keyButton" :x="x" :y="y" rx="5" class="letter-key" @click="handleClick" />
+  <rect ref="keyButton" :x="x" :y="y" rx="5" class="letter-key" @click="handlePress" />
 </template>
 
 <script setup lang="ts">
@@ -24,16 +24,20 @@ function forceReflow() {
 }
 
 function glow(color: string) {
-  keyButton.value!.style.transition = 'none'
-  keyButton.value!.style.fill = color
+  if (keyButton.value === undefined) {
+    return
+  }
+
+  keyButton.value.style.transition = 'none'
+  keyButton.value.style.fill = color
 
   forceReflow()
 
-  keyButton.value!.style.transition = 'fill 0.3s ease'
-  keyButton.value!.style.fill = 'rgba(117, 117, 117, 0)'
+  keyButton.value.style.transition = 'fill 0.3s ease'
+  keyButton.value.style.fill = 'rgba(117, 117, 117, 0)'
 }
 
-function handleClick() {
+function handlePress() {
   normalSfx.play()
   glow('rgba(255, 255, 255, 0.4)')
 }
@@ -44,7 +48,7 @@ function handleRetry() {
 }
 
 defineExpose({
-  handleClick,
+  handlePress,
   handleRetry,
 })
 </script>
