@@ -3,7 +3,7 @@
     <InputDisplay ref="inputDisplay" :displayText="displayText" :isRetrying="isRetrying" />
     <circle class="indicator" :class="{ retry: isRetrying }" cx="1567.1" cy="843.3" r="35.5" />
 
-    <circle class="interactable" title="go" cx="1736" cy="784" r="55" @click="submit" />
+    <circle class="interactable" title="go" cx="1736" cy="784" r="55" @click="submit(false)" />
     <rect
       class="interactable"
       title="retry"
@@ -59,14 +59,10 @@ const pressSfx = new Sound('sfx/press.wav')
 const dropSfx = new Sound('sfx/drop.wav')
 const successSfx = new Sound('sfx/success.wav')
 
-let stateLocked = false
 let userInput = ''
+let lastUserInput = ''
 
 function handleClick(letter: string) {
-  if (stateLocked) {
-    return
-  }
-
   const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
   keyButton!.handleClick()
 
@@ -75,38 +71,38 @@ function handleClick(letter: string) {
 }
 
 async function tryAgain() {
-  if (stateLocked) {
-    return
-  }
-
-  stateLocked = true
-  isRetrying.value = true
-  displayText.value = ''
-
-  for (const letter of userInput) {
-    const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
-    keyButton!.handleRetry()
-
-    displayText.value = (displayText.value + letter).slice(-9)
-
-    await new Promise((resolve) => setTimeout(resolve, 75))
-  }
-
-  stateLocked = false
-
-  submit()
-}
-
-async function submit() {
-  if (stateLocked) {
-    return
-  }
-
-  if (userInput === '') {
+  if (lastUserInput.length == 0) {
     return
   }
 
   pressSfx.play()
+  isRetrying.value = true
+  displayText.value = ''
+
+  let currentDisplay = ''
+  for (let i = 0; i < lastUserInput.length; i++) {
+    const letter = lastUserInput[i]
+    const keyButton = keyButtons.value.find((obj) => obj.$props.letter == letter)
+    keyButton!.handleRetry()
+
+    displayText.value = (currentDisplay += letter).slice(-9)
+
+    await new Promise((resolve) => setTimeout(resolve, 75))
+  }
+
+  submit(true)
+}
+
+async function submit(isAfterRetry = false) {
+  if (lastUserInput != userInput && userInput.length > 0) {
+    lastUserInput = userInput
+  }
+  userInput = ''
+
+  if (!isAfterRetry) {
+    pressSfx.play()
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 150))
 
   dropSfx.play()
@@ -118,7 +114,6 @@ async function submit() {
 
   isRetrying.value = false
   displayText.value = ':-)'
-  userInput = ''
 }
 </script>
 
