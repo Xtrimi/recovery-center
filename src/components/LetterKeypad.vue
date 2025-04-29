@@ -64,6 +64,7 @@ const keyButtons = new Map<string, InstanceType<typeof LetterKey>>()
 let userInput = ''
 let lastUserInput = ''
 let isReplaying = false
+let replayCount = 0
 
 onMounted(() => {
   for (const button of keyButtonRefs.value) {
@@ -116,9 +117,17 @@ async function tryAgain() {
   displayText.value = ''
   isRetrying.value = true
   isReplaying = true
+  replayCount += 1
 
   let currentDisplay = ''
+  const currentReplayId = replayCount
+
   for (let i = 0; i < lastUserInput.length; i++) {
+    if (currentReplayId !== replayCount) {
+      submit(true)
+      return
+    }
+
     const letter = lastUserInput[i]
     const keyButton = keyButtons.get(letter)
     if (keyButton !== undefined) {
@@ -136,6 +145,10 @@ async function tryAgain() {
 
 async function submit(isAfterRetry = false) {
   if (!isAfterRetry) {
+    if (isReplaying) {
+      return
+    }
+
     if (userInput.length > 0) {
       lastUserInput = userInput
     }
