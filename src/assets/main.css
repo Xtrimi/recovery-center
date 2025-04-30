@@ -1,13 +1,4 @@
 @font-face {
-  font-family: 'Eurostile';
-  font-style: normal;
-  font-weight: 400;
-  src:
-    local('Eurostile'),
-    url('./Eurostile.woff') format('woff');
-}
-
-@font-face {
   font-family: 'OCR A Extended';
   font-style: normal;
   font-weight: 400;
