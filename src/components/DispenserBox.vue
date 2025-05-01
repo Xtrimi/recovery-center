@@ -51,6 +51,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { parseInput } from '@/utils/parseInput'
+import { getScale } from '@/utils/getScale'
+import { getSource } from '@/utils/getSource'
 
 interface Object {
   id: number
@@ -119,7 +121,9 @@ function preloadImage(src: string): Promise<{ width: number; height: number }> {
 }
 
 async function dropObject(input: string) {
-  const imageSrc = parseInput(input)
+  input = parseInput(input)
+
+  const imageSrc = getSource(input)
   if (imageSrc === null) {
     return
   }
@@ -130,19 +134,19 @@ async function dropObject(input: string) {
 
   curObject.value = null
   hasBounced.value = false
-  console.log(hasBounced.value)
+
   const { width, height } = await preloadImage(imageSrc)
+  const scale = getScale(input)
 
   curObject.value = {
     id: objectId++,
     src: imageSrc,
-    width: width * 0.7,
-    height: height * 0.7,
+    width: width * scale,
+    height: height * scale,
   }
 
   bounceTimeout = setTimeout(() => {
     hasBounced.value = true
-    console.log(hasBounced.value)
   }, 150)
 }
 
