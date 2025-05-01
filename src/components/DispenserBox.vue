@@ -26,10 +26,38 @@
       values="rgb(170,170,170); rgb(190,190,190); rgb(170,170,170); rgb(150,150,150); rgb(170,170,170)"
     />
   </path>
+
+  <defs>
+    <clipPath id="floorClip">
+      <rect x="0" y="580" width="2304" height="1296" fill="white" />
+    </clipPath>
+  </defs>
+
+  <g :clip-path="hasBounced ? undefined : 'url(#floorClip)'">
+    <Transition name="drop">
+      <g v-if="curObject" :key="curObject.id">
+        <image
+          :href="curObject.src"
+          :x="830 - curObject.width / 2"
+          :y="1220 - curObject.height"
+          :width="curObject.width"
+          :height="curObject.height"
+        />
+      </g>
+    </Transition>
+  </g>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { parseInput } from '@/utils/parseInput'
+
+interface Object {
+  id: number
+  src: string
+  width: number
+  height: number
+}
 
 const position = { X: 535, Y: 538 }
 const size = { X: 577, Y: 126 }
@@ -64,9 +92,13 @@ const backD = computed(
 )
 
 const box = ref<SVGPathElement | null>(null)
+const curObject = ref<Object | null>()
+const hasBounced = ref(false)
 
+let bounceTimeout: number | null = null
 let animD: SVGAnimateElement | null = null
 let animFill: SVGAnimateElement | null = null
+let objectId = 0
 
 onMounted(() => {
   animD = box.value!.querySelector('#animD')
@@ -78,5 +110,68 @@ function flip() {
   animFill!.beginElement()
 }
 
-defineExpose({ flip })
+function preloadImage(src: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => resolve({ width: img.width, height: img.height })
+    img.src = src
+  })
+}
+
+async function dropObject(input: string) {
+  const imageSrc = parseInput(input)
+  if (imageSrc === null) {
+    return
+  }
+
+  if (bounceTimeout) {
+    clearTimeout(bounceTimeout)
+  }
+
+  curObject.value = null
+  hasBounced.value = false
+  console.log(hasBounced.value)
+  const { width, height } = await preloadImage(imageSrc)
+
+  curObject.value = {
+    id: objectId++,
+    src: imageSrc,
+    width: width * 0.7,
+    height: height * 0.7,
+  }
+
+  bounceTimeout = setTimeout(() => {
+    hasBounced.value = true
+    console.log(hasBounced.value)
+  }, 150)
+}
+
+defineExpose({ flip, dropObject })
 </script>
+
+<style scoped>
+.drop-enter-active {
+  animation:
+    fall 0.15s ease-in,
+    bounce 0.2s 0.15s ease-out;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(-400px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-30px);
+  }
+}
+</style>

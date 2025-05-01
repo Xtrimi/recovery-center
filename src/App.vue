@@ -1,7 +1,10 @@
 <template>
   <div id="wrapper" :class="{ zoomed: isZoomed, zooming: isZooming }">
     <img src="@/assets/background.png" class="background" />
-    <LetterKeypad />
+    <svg class="overlay" viewBox="0 0 2304 1296" preserveAspectRatio="xMidYMid slice">
+      <DispenserBox ref="dispenserBox" />
+      <LetterKeypad @dropObject="dropObject" @flip="flip" />
+    </svg>
   </div>
 
   <button class="zoomer" @click="toggleZoom">
@@ -13,9 +16,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import LetterKeypad from '@/components/LetterKeypad.vue'
+import DispenserBox from '@/components/DispenserBox.vue'
 
+const dispenserBox = ref<InstanceType<typeof DispenserBox>>()
 const isZoomed = ref(false)
 const isZooming = ref(false)
+
+function dropObject(input: string) {
+  dispenserBox.value!.dropObject(input)
+}
+
+function flip() {
+  dispenserBox.value!.flip()
+}
 
 function toggleZoom() {
   isZoomed.value = !isZoomed.value
@@ -50,6 +63,15 @@ function toggleZoom() {
   width: 100vw;
   height: 100vh;
   object-fit: cover;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
 }
 
 .zoom-icon {

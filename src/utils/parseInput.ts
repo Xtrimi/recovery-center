@@ -1,5 +1,11 @@
 const images = import.meta.glob('@/assets/objects/*.webp', { eager: true, import: 'default' })
 
+const aliases = {
+  eight: '8',
+  nine: '9',
+  income_tax_return_document: 'itrd',
+}
+
 const imageMap: Record<string, string> = {}
 
 for (const path in images) {
@@ -13,8 +19,9 @@ export function parseInput(input: string): string | null {
     .trim()
     .replace(/[^A-Za-z0-9]/i, '_')
 
-  // edge cases
-  cleanInput = cleanInput.replace('eight', '8').replace('nine', '9')
+  for (const [alias, normalized] of Object.entries(aliases)) {
+    cleanInput = cleanInput.replace(alias, normalized)
+  }
 
   return imageMap[cleanInput] ?? null
 }
