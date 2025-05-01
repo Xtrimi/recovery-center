@@ -49,7 +49,7 @@ function toggleZoom() {
 }
 
 #wrapper.zoomed {
-  transform: translate(calc((100% - 455vw) / 4.6), calc((100% - 410vh) / 4.6)) scale(2.3);
+  transform: translate(calc((100% - 455vw) / 4.6), calc((100% - 420vh) / 4.6)) scale(2.3);
 }
 
 #wrapper.zooming {
