@@ -1,3 +1,4 @@
+<!-- forgive me for the spaghetti code-->
 <template>
   <svg class="overlay" viewBox="0 0 2304 1296" preserveAspectRatio="xMidYMid slice">
     <InputDisplay ref="inputDisplay" :displayText="displayText" :isRetrying="isRetrying" />
@@ -13,6 +14,12 @@
       height="62"
       @click="tryAgain"
     />
+
+    <TransitionGroup name="drop" tag="g">
+      <g v-for="object in droppedObjects.slice(-4)" :key="object.id" class="drop-item">
+        <image :href="object.src" :x="700" :y="900" :width="300" :height="300" />
+      </g>
+    </TransitionGroup>
 
     <DispenserBox ref="dispenserBox" />
     <g
@@ -37,9 +44,15 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { Sound } from '@/utils/Sound'
+import { parseInput } from '@/utils/parseInput'
 import LetterKey from './LetterKey.vue'
 import DispenserBox from './DispenserBox.vue'
 import InputDisplay from './InputDisplay.vue'
+
+interface Object {
+  id: number
+  src: string
+}
 
 const keyRows = [
   ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
@@ -47,6 +60,7 @@ const keyRows = [
   ['O', 'P', 'Q', 'R', 'S', 'T'],
   ['U', 'V', 'W', 'X', 'Y', 'Z'],
 ]
+const maximumObjects = 4
 
 const keyButtonRefs = ref<InstanceType<typeof LetterKey>[]>([])
 const dispenserBox = ref<InstanceType<typeof DispenserBox>>()
@@ -60,11 +74,13 @@ const dropSfx = new Sound('sfx/drop.wav')
 const successSfx = new Sound('sfx/success.wav')
 
 const keyButtons = new Map<string, InstanceType<typeof LetterKey>>()
+const droppedObjects = ref<Object[]>([])
 
 let userInput = ''
 let lastUserInput = ''
 let isReplaying = false
-let replayCount = 0
+let replayId = 0
+let objectId = 0
 
 onMounted(() => {
   for (const button of keyButtonRefs.value) {
@@ -108,6 +124,23 @@ function handlePress(letter: string) {
   displayText.value = userInput.slice(-9)
 }
 
+function handleDrop() {
+  const imageSrc = parseInput(lastUserInput)
+  console.log(imageSrc)
+  if (imageSrc === null) {
+    return
+  }
+
+  droppedObjects.value.push({
+    id: objectId++,
+    src: imageSrc,
+  })
+
+  if (droppedObjects.value.length > maximumObjects) {
+    droppedObjects.value.shift()
+  }
+}
+
 async function tryAgain() {
   if (lastUserInput.length == 0) {
     return
@@ -117,13 +150,13 @@ async function tryAgain() {
   displayText.value = ''
   isRetrying.value = true
   isReplaying = true
-  replayCount += 1
+  replayId += 1
 
   let currentDisplay = ''
-  const currentReplayId = replayCount
+  const currentReplayId = replayId
 
   for (let i = 0; i < lastUserInput.length; i++) {
-    if (currentReplayId !== replayCount) {
+    if (currentReplayId !== replayId) {
       submit(true)
       return
     }
@@ -155,8 +188,10 @@ async function submit(isAfterRetry = false) {
 
     pressSfx.play()
   }
-  userInput = ''
 
+  handleDrop()
+
+  userInput = ''
   await new Promise((resolve) => setTimeout(resolve, 150))
 
   dropSfx.play()
@@ -215,5 +250,29 @@ async function submit(isAfterRetry = false) {
   display: flex;
   gap: 1px;
   margin-bottom: 1px;
+}
+
+/* Enter transitions */
+.drop-enter-active {
+  transition: transform 0.4s ease-out;
+}
+
+.drop-enter-from {
+  transform: translateY(-200px);
+}
+
+/* Bounce animation after landing */
+.drop-item {
+  animation: bounce 0.6s 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-30px);
+  }
 }
 </style>
