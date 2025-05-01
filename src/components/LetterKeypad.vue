@@ -57,8 +57,7 @@ const displayText = ref('')
 const isRetrying = ref(false)
 
 const pressSfx = new Sound('sfx/press.wav')
-const dropSfx = new Sound('sfx/drop.wav')
-const successSfx = new Sound('sfx/success.wav')
+const recoverSfx = new Sound('sfx/recover.wav')
 
 const keyButtons = new Map<string, InstanceType<typeof LetterKey>>()
 
@@ -159,15 +158,11 @@ async function submit(isAfterRetry = false) {
 
   emits('flip')
   emits('dropObject', lastUserInput)
+  recoverSfx.play()
+  inputDisplay.value!.glowText()
 
   userInput = ''
-  await new Promise((resolve) => setTimeout(resolve, 150))
-
-  dropSfx.play()
-  inputDisplay.value!.glowText()
   await new Promise((resolve) => setTimeout(resolve, 600))
-
-  successSfx.play()
 
   if (isReplaying) {
     return
